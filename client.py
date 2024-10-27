@@ -22,6 +22,7 @@ top_k=50
 top_p=0.9
 max_tokens=100
 
+startAt = 0
 
 argumentStart = 1
 if (len(sys.argv)>1):
@@ -40,6 +41,9 @@ if (len(sys.argv)>1):
               else:
                 print(f"Error: Directory '{directory}' does not exist.")
                 sys.exit(1)
+           elif (sys.argv[i]=="--start"):
+              startAt = int(sys.argv[i+1])
+              argumentStart = argumentStart+2
            elif (sys.argv[i]=="--port"):
               port = sys.argv[i+1]
               argumentStart = argumentStart+2
@@ -72,26 +76,38 @@ results["prompt"] = user_prompt
 for i in range(argumentStart, len(sys.argv)):
    files.append(sys.argv[i])
 
+#Make sure the list is sorted
+files.sort()
 
+#Possibly start at specific index
+for i in range(startAt,len(files)):
 
-for i,image_path in enumerate(files):
+    #Grab next image path
+    image_path = files[i]
 
+    #Count start time
     start      = time.time()
-    # Send the image file path and the prompt to the Gradio app for processing
-    result = client.predict(
-                            image=handle_file(image_path),   # Provide the file path directly
-                            user_prompt=user_prompt,  # The user prompt
-		                    temperature=temperature,
-		                    top_k=top_k,
-		                    top_p=top_p,
-		                    max_tokens=max_tokens,
-		                    history=[],
-		                    api_name="/predict"
-                           )
+    try:
+      #Send the image file path and the prompt to the Gradio app for processing
+      result = client.predict(
+                              image=handle_file(image_path),   # Provide the file path directly
+                              user_prompt=user_prompt,  # The user prompt
+		                      temperature=temperature,
+		                      top_k=top_k,
+		                      top_p=top_p,
+		                      max_tokens=max_tokens,
+		                      history=[],
+		                      api_name="/predict"
+                             )     
+    except Exception:
+      print("Failed to complete job, please restart using --start ",i)
+      output_file = "partial_until_%u%s" %(i,output_file) 
+      break
+    
+    #Calculate time
     seconds    = time.time() - start
     remaining  = (len(files)-i) * seconds
     hz    = 1 / (seconds+0.0001)
-    
 
     # Output the result
     question = result[0][0]
