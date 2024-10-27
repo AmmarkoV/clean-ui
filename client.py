@@ -87,6 +87,8 @@ for i in range(startAt,len(files)):
 
     #Count start time
     start      = time.time()
+
+    #Make query to LLM
     try:
       #Send the image file path and the prompt to the Gradio app for processing
       result = client.predict(
@@ -104,7 +106,7 @@ for i in range(startAt,len(files)):
       output_file = "partial_until_%u%s" %(i,output_file) 
       break
     
-    #Calculate time
+    #Calculate elapsed time
     seconds    = time.time() - start
     remaining  = (len(files)-i) * seconds
     hz    = 1 / (seconds+0.0001)
