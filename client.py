@@ -98,7 +98,7 @@ for i,image_path in enumerate(files):
     response = result[0][1]
     
     #Printout on screen
-    print("Processing ",1+i,"/",len(files)," | %0.2f Hz / remaining %0.2f sec" % (hz,remaining))
+    print("Processing ",1+i,"/",len(files)," | %0.2f Hz / remaining %0.2f minutes" % (hz, remaining/60))
     print("Image :",image_path,"\nResponse:", result[0][1])
 
     #Store each path as the key pointing to each description
@@ -106,4 +106,4 @@ for i,image_path in enumerate(files):
 
 print("\n\n\nStoring results in JSON file ",output_file)
 with open(output_file, "w") as outfile: 
-    json.dump(results, outfile)
+    json.dump(results, outfile, indent=4)
