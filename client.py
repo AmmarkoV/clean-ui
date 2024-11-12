@@ -35,7 +35,9 @@ if (len(sys.argv)>1):
               argumentStart = argumentStart+2
               # Populate files with image (.jpg, .png) contents of directory
               if os.path.isdir(directory):
-                for file in os.listdir(directory):
+                directoryList = os.listdir(directory)
+                directoryList.sort() 
+                for file in directoryList:
                     if file.lower().endswith(('.jpg', '.png', '.jpeg')):
                         files.append(os.path.join(directory, file))
               else:
