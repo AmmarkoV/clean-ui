@@ -38,7 +38,7 @@ if (len(sys.argv)>1):
                 directoryList = os.listdir(directory)
                 directoryList.sort() 
                 for file in directoryList:
-                    if file.lower().endswith(('.jpg', '.png', '.jpeg')):
+                    if file.lower().endswith(('.jpg', '.png', '.jpeg','.txt')):
                         files.append(os.path.join(directory, file))
               else:
                 print(f"Error: Directory '{directory}' does not exist.")
@@ -90,12 +90,23 @@ for i in range(startAt,len(files)):
     #Count start time
     start      = time.time()
 
-    #Make query to LLM
+    #Make query to VLLM
     try:
+      imageFile = handle_file(image_path)
+      if ('.txt' in image_path):
+         imageFile = None
+         this_user_prompt = user_prompt
+         with open(image_path, 'r') as txt_file:
+                this_user_prompt = txt_file.read().strip()
+         
+      else:
+         imageFile = handle_file(image_path)
+         this_user_prompt = user_prompt
+
       #Send the image file path and the prompt to the Gradio app for processing
       result = client.predict(
-                              image=handle_file(image_path),   # Provide the file path directly
-                              user_prompt=user_prompt,  # The user prompt
+                              image=imageFile,   # Provide the file path directly
+                              user_prompt=this_user_prompt,  # The user prompt
 		                      temperature=temperature,
 		                      top_k=top_k,
 		                      top_p=top_p,
