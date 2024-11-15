@@ -76,7 +76,7 @@ def describe_image(image, user_prompt, temperature, top_k, top_p, max_tokens, hi
     cleaned_output = ""
 
     # Prepare prompt with user input based on selected model
-    if model_choice == "1":  # Llama Model
+    if model_choice == "1" or model_choice == "2":  # Llama Model
         if image is not None:
            prompt = f"<|image|><|begin_of_text|>{user_prompt} Answer:"
         else:
@@ -103,7 +103,7 @@ def describe_image(image, user_prompt, temperature, top_k, top_p, max_tokens, hi
         else:
           cleaned_output = raw_output.replace("<|begin_of_text|>", "").strip().replace(" Answer:", "")
         
-    elif model_choice == "2":  # Molmo Model
+    elif model_choice == "3":  # Molmo Model
         # Prepare inputs for Molmo model
         inputs = processor.process(images=[image], text=user_prompt)
         inputs = {k: v.to(model.device).unsqueeze(0) for k, v in inputs.items()}
