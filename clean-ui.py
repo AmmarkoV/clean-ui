@@ -61,14 +61,18 @@ MAX_IMAGE_SIZE = (1120, 1120)
 # Function to process the image and generate a description
 def describe_image(image, user_prompt, temperature, top_k, top_p, max_tokens, history):
     # Resize image if necessary
-    image = image.resize(MAX_IMAGE_SIZE)
+    if image is not None:
+       image = image.resize(MAX_IMAGE_SIZE)
 
     # Initialize cleaned_output variable
     cleaned_output = ""
 
     # Prepare prompt with user input based on selected model
     if model_choice == "1":  # Llama Model
-        prompt = f"<|image|><|begin_of_text|>{user_prompt} Answer:"
+        if image is not None:
+           prompt = f"<|image|><|begin_of_text|>{user_prompt} Answer:"
+        else:
+           prompt = f"<|begin_of_text|>{user_prompt} Answer:"
         # Preprocess the image and prompt
         inputs = processor(image, prompt, return_tensors="pt").to(model.device)
 
