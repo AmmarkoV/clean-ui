@@ -19,7 +19,7 @@ if (len(sys.argv)>1):
               model_choice="1"
            if (sys.argv[i]=="--molmo"):
               model_choice="2"
-           if (sys.argv[i]=="--bind_all"):
+           if (sys.argv[i]=="--bind_all") or (sys.argv[i]=="--bindall"):
               server_name="0.0.0.0"
            if (sys.argv[i]=="--bind"):
               server_name = sys.argv[i+1]
@@ -30,7 +30,7 @@ if (model_choice=="0"):
     # Model selection menu in terminal
    print("Select a model to load:")
    print("1. Llama-3.2-11B-Vision-Instruct-bnb-4bit")
-   print("2. Llama-3.2-11B-Vision-Instruct-bnb-4bit")
+   print("2. Llama-3.2-90B-Vision-Instruct")
    print("3. Molmo-7B-D-bnb-4bit")
    model_choice = input("Enter the number of the model you want to use: ")
 
@@ -42,7 +42,7 @@ if model_choice == "1":
         device_map="auto",
     )
     processor = AutoProcessor.from_pretrained(model_id)
-elif if model_choice == "2":
+elif model_choice == "2":
     model_id = "meta-llama/Llama-3.2-90B-Vision-Instruct"
     model = MllamaForConditionalGeneration.from_pretrained(
         model_id,
