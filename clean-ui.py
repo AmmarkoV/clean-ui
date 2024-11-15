@@ -30,7 +30,8 @@ if (model_choice=="0"):
     # Model selection menu in terminal
    print("Select a model to load:")
    print("1. Llama-3.2-11B-Vision-Instruct-bnb-4bit")
-   print("2. Molmo-7B-D-bnb-4bit")
+   print("2. Llama-3.2-11B-Vision-Instruct-bnb-4bit")
+   print("3. Molmo-7B-D-bnb-4bit")
    model_choice = input("Enter the number of the model you want to use: ")
 
 if model_choice == "1":
@@ -41,8 +42,15 @@ if model_choice == "1":
         device_map="auto",
     )
     processor = AutoProcessor.from_pretrained(model_id)
-
-elif model_choice == "2":
+elif if model_choice == "2":
+    model_id = "meta-llama/Llama-3.2-90B-Vision-Instruct"
+    model = MllamaForConditionalGeneration.from_pretrained(
+        model_id,
+        torch_dtype=torch.bfloat16,
+        device_map="auto",
+    )
+    processor = AutoProcessor.from_pretrained(model_id)
+elif model_choice == "3":
     model_id = "cyan2k/molmo-7B-D-bnb-4bit"
     arguments = {"device_map": "auto", "torch_dtype": "auto", "trust_remote_code": True}
     model = AutoModelForCausalLM.from_pretrained(model_id, **arguments)
@@ -89,8 +97,12 @@ def describe_image(image, user_prompt, temperature, top_k, top_p, max_tokens, hi
         raw_output = processor.decode(output[0])
         
         # Clean up the output to remove system tokens
-        cleaned_output = raw_output.replace("<|image|><|begin_of_text|>", "").strip().replace(" Answer:", "")
-
+        
+        if image is not None:
+          cleaned_output = raw_output.replace("<|image|><|begin_of_text|>", "").strip().replace(" Answer:", "")
+        else:
+          cleaned_output = raw_output.replace("<|begin_of_text|>", "").strip().replace(" Answer:", "")
+        
     elif model_choice == "2":  # Molmo Model
         # Prepare inputs for Molmo model
         inputs = processor.process(images=[image], text=user_prompt)
