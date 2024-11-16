@@ -17,8 +17,10 @@ if (len(sys.argv)>1):
        for i in range(0, len(sys.argv)):
            if (sys.argv[i]=="--llama"):
               model_choice="1"
-           if (sys.argv[i]=="--molmo"):
+           if (sys.argv[i]=="--llama90"):
               model_choice="2"
+           if (sys.argv[i]=="--molmo"):
+              model_choice="3"
            if (sys.argv[i]=="--bind_all") or (sys.argv[i]=="--bindall"):
               server_name="0.0.0.0"
            if (sys.argv[i]=="--bind"):
