@@ -43,7 +43,8 @@ if model_choice == "1":
     )
     processor = AutoProcessor.from_pretrained(model_id)
 elif model_choice == "2":
-    model_id = "meta-llama/Llama-3.2-90B-Vision-Instruct"
+    #model_id = "meta-llama/Llama-3.2-90B-Vision-Instruct"
+    model_id = "neuralmagic/Llama-3.2-90B-Vision-Instruct-FP8-dynamic"
     model = MllamaForConditionalGeneration.from_pretrained(
         model_id,
         torch_dtype=torch.bfloat16,
