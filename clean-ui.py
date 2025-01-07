@@ -15,6 +15,8 @@ server_name="127.0.0.1"
 model_choice="0"
 if (len(sys.argv)>1):
        for i in range(0, len(sys.argv)):
+           if (sys.argv[i]=="--deepseek"):
+              model_choice="4"
            if (sys.argv[i]=="--llama"):
               model_choice="1"
            if (sys.argv[i]=="--llama90"):
@@ -34,6 +36,7 @@ if (model_choice=="0"):
    print("1. Llama-3.2-11B-Vision-Instruct-bnb-4bit")
    print("2. Llama-3.2-90B-Vision-Instruct")
    print("3. Molmo-7B-D-bnb-4bit")
+   print("4. Deep Seek VL2")
    model_choice = input("Enter the number of the model you want to use: ")
 
 if model_choice == "1":
@@ -58,7 +61,11 @@ elif model_choice == "3":
     arguments = {"device_map": "auto", "torch_dtype": "auto", "trust_remote_code": True}
     model = AutoModelForCausalLM.from_pretrained(model_id, **arguments)
     processor = AutoProcessor.from_pretrained(model_id, **arguments)
-
+elif model_choice == "4":
+    model_id = "deepseek-ai/deepseek-vl2-small"
+    arguments = {"device_map": "auto", "torch_dtype": "auto", "trust_remote_code": True}
+    model = AutoModelForCausalLM.from_pretrained(model_id, **arguments)
+    processor = AutoProcessor.from_pretrained(model_id, **arguments)
 else:
     raise ValueError("Invalid model choice. Please enter 1 or 2.")
 
