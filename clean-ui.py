@@ -139,12 +139,12 @@ def describe_image(image, user_prompt, temperature, top_k, top_p, max_tokens, hi
         conversation = [
         {
         "role": "<|User|>",
-        "content": "<image>\n<|ref|>The giraffe at the back.<|/ref|>.",
-        "images": ["./images/visual_grounding.jpeg"],
+        "content": "<image>\n<|ref|>%s<|/ref|>." % user_prompt,
+        "images": [image],
         },
         {"role": "<|Assistant|>", "content": ""},
         ]
-
+        from deepseek_vl.utils.io import load_pil_images
         pil_images = load_pil_images(conversation)
         prepare_inputs = vl_chat_processor(
                                            conversations=conversation,
