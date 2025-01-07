@@ -62,9 +62,8 @@ elif model_choice == "3":
     model = AutoModelForCausalLM.from_pretrained(model_id, **arguments)
     processor = AutoProcessor.from_pretrained(model_id, **arguments)
 elif model_choice == "4":
-    model_id = "deepseek-ai/deepseek-vl2-small"
-    arguments = {"device_map": "auto", "torch_dtype": "auto", "trust_remote_code": True}
-    model = AutoModelForCausalLM.from_pretrained(model_id, **arguments)
+    model_id = "deepseek-ai/deepseek-vl2"
+    model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True)
     model = model.to(torch.bfloat16).cuda().eval()
     from deepseek_vl.models import DeepseekVLV2Processor, DeepseekVLV2ForCausalLM
     processor: DeepseekVLV2Processor = DeepseekVLV2Processor.from_pretrained(model_id)
