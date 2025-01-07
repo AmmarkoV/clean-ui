@@ -62,7 +62,7 @@ elif model_choice == "3":
     model = AutoModelForCausalLM.from_pretrained(model_id, **arguments)
     processor = AutoProcessor.from_pretrained(model_id, **arguments)
 elif model_choice == "4":
-    model_id = "deepseek-ai/deepseek-vl2"
+    model_id = "deepseek-ai/deepseek-vl2-small"
     model:DeepseekVLV2ForCausalLM = AutoModelForCausalLM.from_pretrained(model_id, auto_map=True, trust_remote_code=True)
     model = model.to(torch.bfloat16).cuda().eval()
     from deepseek_vl.models import DeepseekVLV2Processor, DeepseekVLV2ForCausalLM
@@ -139,7 +139,7 @@ def describe_image(image, user_prompt, temperature, top_k, top_p, max_tokens, hi
         conversation = [
         {
         "role": "<|User|>",
-        "content": "<image>\n<|ref|>%s<|/ref|>." % user_prompt,
+        "content": "<image>\n %s" % user_prompt,
         "images": [image],
         },
         {"role": "<|Assistant|>", "content": ""},
