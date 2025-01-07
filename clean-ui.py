@@ -65,7 +65,9 @@ elif model_choice == "4":
     model_id = "deepseek-ai/deepseek-vl2-small"
     arguments = {"device_map": "auto", "torch_dtype": "auto", "trust_remote_code": True}
     model = AutoModelForCausalLM.from_pretrained(model_id, **arguments)
-    processor = AutoProcessor.from_pretrained(model_id, **arguments)
+    model = model.to(torch.bfloat16).cuda().eval()
+    from deepseek_vl.models import DeepseekVLV2Processor, DeepseekVLV2ForCausalLM
+    processor: DeepseekVLV2Processor = DeepseekVLV2Processor.from_pretrained(model_id)
 else:
     raise ValueError("Invalid model choice. Please enter 1 or 2.")
 
@@ -111,8 +113,7 @@ def describe_image(image, user_prompt, temperature, top_k, top_p, max_tokens, hi
         if image is not None:
           cleaned_output = raw_output.replace("<|image|><|begin_of_text|>", "").strip().replace(" Answer:", "")
         else:
-          cleaned_output = raw_output.replace("<|begin_of_text|>", "").strip().replace(" Answer:", "")
-        
+          cleaned_output = raw_output.replace("<|begin_of_text|>", "").strip().replace(" Answer:", "")        
     elif model_choice == "3":  # Molmo Model
         # Prepare inputs for Molmo model
         inputs = processor.process(images=[image], text=user_prompt)
@@ -135,6 +136,34 @@ def describe_image(image, user_prompt, temperature, top_k, top_p, max_tokens, hi
         # Extract generated tokens and decode them to text
         generated_tokens = output[0, inputs["input_ids"].size(1):]
         cleaned_output = processor.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+    elif model_choice == "4":  # Deep Seek
+        # Prepare inputs for Molmo model
+        inputs = processor.process(images=[image], text=user_prompt)
+        inputs = {k: v.to(model.device).unsqueeze(0) for k, v in inputs.items()}
+        
+        # Generate output with model, applying the parameters for temperature, top_k, top_p, and max_tokens
+        output = model.generate_from_batch(
+            inputs,
+            GenerationConfig(
+                max_new_tokens=min(max_tokens, MAX_OUTPUT_TOKENS),
+                temperature=temperature,
+                top_k=top_k,
+                top_p=top_p,
+                stop_strings="<|endoftext|>",
+                do_sample=True
+            ),
+            tokenizer=processor.tokenizer,
+        )
+
+        # Extract generated tokens and decode them to text
+        generated_tokens = output[0, inputs["input_ids"].size(1):]
+        cleaned_output = processor.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+
+
+
+
+
+
 
     # Ensure the prompt is not repeated in the output
     if cleaned_output.startswith(user_prompt):
