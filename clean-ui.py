@@ -136,28 +136,40 @@ def describe_image(image, user_prompt, temperature, top_k, top_p, max_tokens, hi
         generated_tokens = output[0, inputs["input_ids"].size(1):]
         cleaned_output = processor.tokenizer.decode(generated_tokens, skip_special_tokens=True)
     elif model_choice == "4":  # Deep Seek
-        # Prepare inputs for Molmo model
-        inputs = processor.process(images=[image], text=user_prompt)
-        inputs = {k: v.to(model.device).unsqueeze(0) for k, v in inputs.items()}
-        
-        # Generate output with model, applying the parameters for temperature, top_k, top_p, and max_tokens
-        output = model.generate_from_batch(
-            inputs,
-            GenerationConfig(
-                max_new_tokens=min(max_tokens, MAX_OUTPUT_TOKENS),
-                temperature=temperature,
-                top_k=top_k,
-                top_p=top_p,
-                stop_strings="<|endoftext|>",
-                do_sample=True
-            ),
-            tokenizer=processor.tokenizer,
-        )
+        conversation = [
+        {
+        "role": "<|User|>",
+        "content": "<image>\n<|ref|>The giraffe at the back.<|/ref|>.",
+        "images": ["./images/visual_grounding.jpeg"],
+        },
+        {"role": "<|Assistant|>", "content": ""},
+        ]
 
-        # Extract generated tokens and decode them to text
-        generated_tokens = output[0, inputs["input_ids"].size(1):]
-        cleaned_output = processor.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+        pil_images = load_pil_images(conversation)
+        prepare_inputs = vl_chat_processor(
+                                           conversations=conversation,
+                                           images=pil_images,
+                                           force_batchify=True,
+                                           system_prompt=""
+                                          ).to(vl_gpt.device)
 
+        # run image encoder to get the image embeddings
+        inputs_embeds = vl_gpt.prepare_inputs_embeds(**prepare_inputs)
+
+        # run the model to get the response
+        outputs = vl_gpt.language_model.generate(
+                                                 inputs_embeds=inputs_embeds,
+                                                 attention_mask=prepare_inputs.attention_mask,
+                                                 pad_token_id=tokenizer.eos_token_id,
+                                                 bos_token_id=tokenizer.bos_token_id,
+                                                 eos_token_id=tokenizer.eos_token_id,
+                                                 max_new_tokens=512,
+                                                 do_sample=False,
+                                                 use_cache=True
+                                                )
+
+        cleaned_output = tokenizer.decode(outputs[0].cpu().tolist(), skip_special_tokens=True)
+        print(f"{prepare_inputs['sft_format'][0]}", cleaned_output)
 
 
 
